@@ -16,51 +16,66 @@ _Haz que un flujo de trabajo sea reutilizable, llámalo en otro flujo de trabajo
 </header>
 
 <!--
-  <<< Notas del autor: Paso 1 >>>
-  Elige 3-5 pasos para tu curso.
-  ¡El primer paso siempre es el más difícil, así que elige algo fácil!
-  Enlaza a docs.github.com para más explicaciones.
-  ¡Anima a los usuarios a abrir nuevas pestañas para los pasos!
+  <<< Notas del autor: Paso 2 >>>
+  Comienza este paso reconociendo el paso anterior.
+  Define términos y enlaza a docs.github.com.
 -->
 
-## Paso 1: Hacer un flujo de trabajo reutilizable
+## Paso 2: Agregar un trabajo para llamar al flujo de trabajo reutilizable
 
-_Bienvenido a "Flujos de trabajo reutilizables y estrategias de matriz"! :wave:_
+_¡Buen trabajo! :tada: ¡Hiciste un flujo de trabajo reutilizable!_
 
-¡Puedes hacer mucho con GitHub Actions! Puedes automatizar tareas repetitivas, construir tuberías de integración y despliegue continuo, y personalizar prácticamente cualquier parte de tu flujo de trabajo de desarrollo de software. No importa si estás aprendiendo sobre flujos de trabajo y GitHub Actions por primera vez o si tienes mucha experiencia con el proceso, pronto te encontrarás repitiendo trabajos y pasos de automatización dentro del mismo flujo de trabajo, e incluso usando el temido método de copiar y pegar para los flujos de trabajo en múltiples repositorios.
+Ahora que tienes un flujo de trabajo reutilizable, puedes llamarlo en otro flujo de trabajo dentro de un trabajo nuevo o existente. Pero antes de hacer eso, tomémonos un minuto para entender qué está haciendo nuestro flujo de trabajo reutilizable al observar el contenido del archivo.
 
-¿Existe una solución para reducir estas tareas repetitivas? ¡Sí, me alegra que lo hayas preguntado! :wink: Ingresa a los **flujos de trabajo reutilizables**, una forma simple y poderosa de evitar copiar y pegar flujos de trabajo en tus repositorios.
+**Comprendiendo el contenido del archivo de tu flujo de trabajo reutilizable**
 
-**¿Cuáles son los beneficios de usar flujos de trabajo reutilizables?**: Los flujos de trabajo reutilizables son ... reutilizables. Los flujos de trabajo reutilizables te permiten aplicar el principio DRY (don’t repeat yourself) a tus configuraciones de Actions, por lo que no necesitas copiar y pegar tus flujos de trabajo de un repositorio a otro.
 
-- Por ejemplo: si tienes tres aplicaciones Node diferentes y las estás construyendo de la misma manera, puedes usar un flujo de trabajo reutilizable en lugar de copiar y pegar tus flujos de trabajo una y otra vez.
+```yaml
+name: Reusable Workflow
 
-**Tengo un flujo de trabajo, ¿cómo lo hago reutilizable?**: Un flujo de trabajo reutilizable es igual que cualquier flujo de trabajo de GitHub Actions con una diferencia clave: incluye un disparador de evento `workflow_call`, similar a los disparadores de eventos como `push`, `issues`, y `workflow_dispatch`. Esto significa que todo lo que necesitas hacer para hacer un flujo de trabajo reutilizable es usar el disparador de evento de llamada de flujo de trabajo.
+on:
+  workflow_call:
+    inputs:
+      node:
+        required: true
+        type: string
 
-¡Comencemos con nuestro primer paso para ver cómo funcionaría esto!
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-### :keyboard: Actividad: Agregar un disparador `workflow_call` a un flujo de trabajo
+    steps:
+      - uses: actions/checkout@v3
 
-1. Abre una nueva pestaña del navegador y navega a este mismo repositorio. Luego, trabaja en los pasos en tu segunda pestaña mientras lees las instrucciones en esta pestaña.
-1. Ve a la pestaña **Code**.
-1. Desde el menú desplegable de la rama **stemdo**, haz clic en la rama **reusable-workflow**.
-1. Navega hasta la carpeta `.github/workflows/`, luego selecciona el archivo **reusable-workflow.yml**.
-1. Reemplaza el disparador de evento `workflow_dispatch` con el disparador de evento `workflow_call`. Debería verse como sigue:
+      - name: Output the input value
+        run: |
+          echo "The node version to use is: ${{ inputs.node }}"
+```
+
+
+El flujo de trabajo reutilizable requiere una `input` de `node` para que el flujo de trabajo funcione. Debes asegurarte de que el otro flujo de trabajo que estás utilizando para llamar a este flujo de trabajo reutilizable produzca una versión de node. Si se detecta una entrada de node, el flujo de trabajo iniciará un trabajo llamado `build` que se ejecuta en ubuntu-latest.
+
+El paso dentro del trabajo `build` utiliza una acción llamada `checkout@v3` para hacer checkout del código y luego un paso para producir el valor de entrada mediante la ejecución de un comando echo para imprimir en la consola de registro de Actions el siguiente mensaje, `The node version to use is: ${{ inputs.node }}`. La entrada de node aquí es el valor de node producido que necesitas tener en tu otro flujo de trabajo.
+
+Bien, ahora que sabemos qué hace el flujo de trabajo reutilizable, agreguemos un nuevo trabajo a otro flujo de trabajo llamado **my-starter-workflow** para llamar a nuestro flujo de trabajo reutilizable. Podemos hacer esto utilizando el comando `uses:` y luego estableciendo la ruta al flujo de trabajo que queremos usar. También necesitamos asegurarnos de definir esa entrada de node o el flujo de trabajo reutilizable no funcionará.
+
+
+### :keyboard: Actividad: Agregar un trabajo a tu flujo de trabajo para llamar al flujo de trabajo reutilizable
+
+1. Ve a la carpeta `.github/workflows/` y abre el archivo `my-starter-workflow.yml`.
+1. Agrega un nuevo trabajo al flujo de trabajo llamado `call-reusable-workflow`.
+1. Agrega un comando `uses` y establece la ruta del comando en el archivo `reusable-workflow.yml`.
+1. Agrega un comando `with` para pasar un parámetro `node` y establecer el valor en `14`.
 
 
    ```yaml
-   name: Reusable Workflow
-
-   on:
-     workflow_call:
-       inputs:
-         node:
-           required: true
-           type: string
+   call-reusable-workflow:
+     uses: ./.github/workflows/reusable-workflow.yml
+     with:
+       node: 14
    ```
 
 1. Para confirmar tus cambios, haz clic en **Start commit**, y luego en **Commit changes**.
-1. (opcional) Crea una solicitud de extracción para ver todos los cambios que realizarás a lo largo de este curso. Haz clic en la pestaña **Pull Requests**, luego en **New pull request**, establece `base: stemdo` y `compare: reusable-workflow`.
 1. Espera unos 20 segundos para que se ejecuten las acciones, luego actualiza esta página (la que estás siguiendo para las instrucciones) y una acción cerrará automáticamente este paso y abrirá el siguiente.
 
 <footer>
