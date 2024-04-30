@@ -16,67 +16,55 @@ _Haz que un flujo de trabajo sea reutilizable, llámalo en otro flujo de trabajo
 </header>
 
 <!--
-  <<< Notas del autor: Paso 2 >>>
+  <<< Notas del autor: Paso 3 >>>
   Comienza este paso reconociendo el paso anterior.
   Define términos y enlaza a docs.github.com.
 -->
 
-## Paso 2: Agregar un trabajo para llamar al flujo de trabajo reutilizable
+## Paso 3: Agregar una estrategia de matriz a tu flujo de trabajo
 
-_¡Buen trabajo! :tada: ¡Hiciste un flujo de trabajo reutilizable!_
+_¡Bien hecho! :sparkles:_
 
-Ahora que tienes un flujo de trabajo reutilizable, puedes llamarlo en otro flujo de trabajo dentro de un trabajo nuevo o existente. Pero antes de hacer eso, tomémonos un minuto para entender qué está haciendo nuestro flujo de trabajo reutilizable al observar el contenido del archivo.
+Tu **My Starter Workflow** ahora tiene un trabajo que produce la versión de node 14 y llama al flujo de trabajo reutilizable llamado **Flujo de trabajo reutilizable**. Luego, imprime un mensaje en los registros de Actions de la versión de node para la compilación. Aún no hemos revisado los registros de Actions en este punto para ver el mensaje, pero no te preocupes, llegaremos allí después de este próximo paso. Mejoremos un poco más nuestro **My Starter Workflow** agregando una estrategia de matriz.
 
-**Comprendiendo el contenido del archivo de tu flujo de trabajo reutilizable**
+**¿Qué es una estrategia de matriz?**: Una estrategia de matriz te permite utilizar variables en una definición de trabajo única para crear automáticamente múltiples ejecuciones de trabajo que se basan en las combinaciones de las variables. Por ejemplo, puedes usar una estrategia de matriz para probar tu código en múltiples versiones de un lenguaje o en múltiples sistemas operativos. A continuación se muestra un ejemplo:
 
 
 ```yaml
-name: Reusable Workflow
-
-on:
-  workflow_call:
-    inputs:
-      node:
-        required: true
-        type: string
-
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Output the input value
-        run: |
-          echo "The node version to use is: ${{ inputs.node }}"
+  example_matrix:
+    strategy:
+      matrix:
+        version: [10, 12, 14]
+        os: [ubuntu-latest, windows-latest]
 ```
 
+Para definir una estrategia de matriz dentro de un trabajo, primero necesitas definir la matriz con la palabra clave `strategy`, seguida de la palabra clave anidada `matrix`. Luego puedes definir variables para la matriz. En el ejemplo anterior, las variables son `version` con los valores `10, 12 y 14`, y otra variable llamada `os` con los valores `ubuntu-latest y windows latest`.
 
-El flujo de trabajo reutilizable requiere una `input` de `node` para que el flujo de trabajo funcione. Debes asegurarte de que el otro flujo de trabajo que estás utilizando para llamar a este flujo de trabajo reutilizable produzca una versión de node. Si se detecta una entrada de node, el flujo de trabajo iniciará un trabajo llamado `build` que se ejecuta en ubuntu-latest.
+El trabajo `example_matrix` se ejecutará para cada combinación posible de las variables. Entonces, en el ejemplo anterior, el flujo de trabajo ejecutará seis trabajos, uno para cada combinación de las variables os y version. Si deseas ejecutar un trabajo para múltiples versiones, utilizar una estrategia de matriz es una solución excelente en lugar de escribir 6 trabajos diferentes.
 
-El paso dentro del trabajo `build` utiliza una acción llamada `checkout@v3` para hacer checkout del código y luego un paso para producir el valor de entrada mediante la ejecución de un comando echo para imprimir en la consola de registro de Actions el siguiente mensaje, `The node version to use is: ${{ inputs.node }}`. La entrada de node aquí es el valor de node producido que necesitas tener en tu otro flujo de trabajo.
+Agreguemos una estrategia de matriz al **My Starter Workflow** para que podamos ejecutar nuestro trabajo en diferentes versiones de node en lugar de la única versión codificada de 14.
 
-Bien, ahora que sabemos qué hace el flujo de trabajo reutilizable, agreguemos un nuevo trabajo a otro flujo de trabajo llamado **my-starter-workflow** para llamar a nuestro flujo de trabajo reutilizable. Podemos hacer esto utilizando el comando `uses:` y luego estableciendo la ruta al flujo de trabajo que queremos usar. También necesitamos asegurarnos de definir esa entrada de node o el flujo de trabajo reutilizable no funcionará.
+### :keyboard: Actividad: Usa una estrategia de matriz para ejecutar múltiples versiones
 
-
-### :keyboard: Actividad: Agregar un trabajo a tu flujo de trabajo para llamar al flujo de trabajo reutilizable
-
-1. Ve a la carpeta `.github/workflows/` y abre el archivo `my-starter-workflow.yml`.
-1. Agrega un nuevo trabajo al flujo de trabajo llamado `call-reusable-workflow`.
-1. Agrega un comando `uses` y establece la ruta del comando en el archivo `reusable-workflow.yml`.
-1. Agrega un comando `with` para pasar un parámetro `node` y establecer el valor en `14`.
+1. En el mismo archivo `my-starter-workflow.yml`, agrega una palabra clave `strategy` debajo del trabajo `call-reusable-workflow`.
+1. Bajo `strategy`, agrega una palabra clave `matrix`.
+1. Define la variable `nodeversion` para ejecutar sobre las siguientes versiones de node `[14, 16, 18, 20]`.
+1. Reemplaza el parámetro `node` codificado en duro de 14 utilizado en el comando `with`, y llama a `nodeversion` en la matriz usando la siguiente sintaxis `${{ matrix.nodeversion }}`. A continuación, se muestra cómo debería lucir tu trabajo:
 
 
    ```yaml
    call-reusable-workflow:
+     strategy:
+       matrix:
+         nodeversion: [14, 16, 18, 20]
      uses: ./.github/workflows/reusable-workflow.yml
      with:
-       node: 14
+       node: ${{ matrix.nodeversion }}
    ```
 
-1. Para confirmar tus cambios, haz clic en **Start commit**, y luego en **Commit changes**.
-1. Espera unos 20 segundos para que se ejecuten las acciones, luego actualiza esta página (la que estás siguiendo para las instrucciones) y una acción cerrará automáticamente este paso y abrirá el siguiente.
+1. Para confirmar tus cambios, haz clic en **Comenzar confirmación** y luego en **Confirmar cambios**.
+1. Espera unos 20 segundos para que se ejecuten las acciones, luego actualiza esta página (la que estás siguiendo las instrucciones) y una acción cerrará automáticamente este paso y abrirá el siguiente.
 
 <footer>
 
