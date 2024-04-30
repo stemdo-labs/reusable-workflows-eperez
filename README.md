@@ -16,49 +16,52 @@ _Haz que un flujo de trabajo sea reutilizable, llámalo en otro flujo de trabajo
 </header>
 
 <!--
-    <<< Notas del autor: Inicio del curso >>>
-    Incluye botón de inicio, una nota sobre los minutos de Actions,
-    y dile al aprendiz por qué debería tomar el curso.
+  <<< Notas del autor: Paso 1 >>>
+  Elige 3-5 pasos para tu curso.
+  ¡El primer paso siempre es el más difícil, así que elige algo fácil!
+  Enlaza a docs.github.com para más explicaciones.
+  ¡Anima a los usuarios a abrir nuevas pestañas para los pasos!
 -->
 
-## Bienvenido
+## Paso 1: Hacer un flujo de trabajo reutilizable
 
-Los flujos de trabajo reutilizables ofrecen una forma simple y poderosa de evitar copiar y pegar flujos de trabajo en tus repositorios, y agregar una estrategia de matriz te permite usar variables en una definición de trabajo única para crear automáticamente múltiples ejecuciones de trabajo.
+_Bienvenido a "Flujos de trabajo reutilizables y estrategias de matriz"! :wave:_
 
-- **Para quién es esto**: Desarrolladores, ingenieros DevOps, estudiantes, gerentes, equipos, usuarios de GitHub.
-- **Lo que aprenderás**: Cómo crear y usar flujos de trabajo reutilizables, crear una estrategia de matriz, desencadenar flujos de trabajo y encontrar registros de flujos de trabajo.
-- **Qué construirás**: Un flujo de trabajo de Actions con una estrategia de matriz que llama a un flujo de trabajo reutilizable para generar múltiples versiones de node.
-- **Prerrequisitos**: En este curso trabajarás con solicitudes de extracción y archivos de flujo de trabajo YAML. Te recomendamos que primero tomes el curso [Introducción a GitHub](https://github.com/skills/introduction-to-github) o estés familiarizado con los conceptos básicos de GitHub, y el curso [Hola GitHub Actions](https://github.com/skills/hello-github-actions) para una introducción a GitHub Actions y los archivos de flujo de trabajo.
-- **Duración**: Este curso se puede completar en menos de una hora.
-- **Atribución**: Este curso de Skills fue inspirado por un [video demostrativo](https://www.youtube.com/watch?v=MBpyouQtY_M) creado por Mickey Gousset ([@mickeygousset](https://github.com/mickeygousset)).
+¡Puedes hacer mucho con GitHub Actions! Puedes automatizar tareas repetitivas, construir tuberías de integración y despliegue continuo, y personalizar prácticamente cualquier parte de tu flujo de trabajo de desarrollo de software. No importa si estás aprendiendo sobre flujos de trabajo y GitHub Actions por primera vez o si tienes mucha experiencia con el proceso, pronto te encontrarás repitiendo trabajos y pasos de automatización dentro del mismo flujo de trabajo, e incluso usando el temido método de copiar y pegar para los flujos de trabajo en múltiples repositorios.
 
-En este curso, aprenderás a:
+¿Existe una solución para reducir estas tareas repetitivas? ¡Sí, me alegra que lo hayas preguntado! :wink: Ingresa a los **flujos de trabajo reutilizables**, una forma simple y poderosa de evitar copiar y pegar flujos de trabajo en tus repositorios.
 
-1. Hacer un flujo de trabajo reutilizable
-2. Agregar un trabajo
-3. Agregar una estrategia de matriz
-4. Fusionar tu solicitud de extracción
-5. Desencadenar el flujo de trabajo
+**¿Cuáles son los beneficios de usar flujos de trabajo reutilizables?**: Los flujos de trabajo reutilizables son ... reutilizables. Los flujos de trabajo reutilizables te permiten aplicar el principio DRY (don’t repeat yourself) a tus configuraciones de Actions, por lo que no necesitas copiar y pegar tus flujos de trabajo de un repositorio a otro.
 
+- Por ejemplo: si tienes tres aplicaciones Node diferentes y las estás construyendo de la misma manera, puedes usar un flujo de trabajo reutilizable en lugar de copiar y pegar tus flujos de trabajo una y otra vez.
 
-### Cómo comenzar este curso siendo stemdoer
+**Tengo un flujo de trabajo, ¿cómo lo hago reutilizable?**: Un flujo de trabajo reutilizable es igual que cualquier flujo de trabajo de GitHub Actions con una diferencia clave: incluye un disparador de evento `workflow_call`, similar a los disparadores de eventos como `push`, `issues`, y `workflow_dispatch`. Esto significa que todo lo que necesitas hacer para hacer un flujo de trabajo reutilizable es usar el disparador de evento de llamada de flujo de trabajo.
 
-Simplemente espera, esta vista cambiará. 
-Haz click en la pestaña ``Actions`` y observa algo se está ejecutando.
+¡Comencemos con nuestro primer paso para ver cómo funcionaría esto!
 
-### No eres stemdoer
+### :keyboard: Actividad: Agregar un disparador `workflow_call` a un flujo de trabajo
 
-Adelante haz click en el botón.
+1. Abre una nueva pestaña del navegador y navega a este mismo repositorio. Luego, trabaja en los pasos en tu segunda pestaña mientras lees las instrucciones en esta pestaña.
+1. Ve a la pestaña **Code**.
+1. Desde el menú desplegable de la rama **stemdo**, haz clic en la rama **reusable-workflow**.
+1. Navega hasta la carpeta `.github/workflows/`, luego selecciona el archivo **reusable-workflow.yml**.
+1. Reemplaza el disparador de evento `workflow_dispatch` con el disparador de evento `workflow_call`. Debería verse como sigue:
 
 
-[![comenzar-curso](https://user-images.githubusercontent.com/1221423/235727646-4a590299-ffe5-480d-8cd5-8194ea184546.svg)](https://github.com/new?template_name=reusable-workflows&template_owner=stemdo-labs&visibility=public)
+   ```yaml
+   name: Reusable Workflow
 
-1. Haz clic derecho en **Comenzar curso** y abre el enlace en una nueva pestaña.
-2. En la nueva pestaña, la mayoría de las opciones se completarán automáticamente.
-   - Para el propietario, elige tu cuenta personal o una organización para alojar el repositorio.
-   - Recomendamos crear un repositorio público, ya que los repositorios privados [utilizarán minutos de Actions](https://docs.github.com/billing/managing-billing-for-github-actions/about-billing-for-github-actions).
-   - Desplázate hacia abajo y haz clic en el botón **Crear repositorio** en la parte inferior del formulario.
-3. Después de que se cree tu nuevo repositorio, espera unos 20 segundos, luego actualiza la página. Sigue las instrucciones paso a paso en el README del nuevo repositorio.
+   on:
+     workflow_call:
+       inputs:
+         node:
+           required: true
+           type: string
+   ```
+
+1. Para confirmar tus cambios, haz clic en **Start commit**, y luego en **Commit changes**.
+1. (opcional) Crea una solicitud de extracción para ver todos los cambios que realizarás a lo largo de este curso. Haz clic en la pestaña **Pull Requests**, luego en **New pull request**, establece `base: stemdo` y `compare: reusable-workflow`.
+1. Espera unos 20 segundos para que se ejecuten las acciones, luego actualiza esta página (la que estás siguiendo para las instrucciones) y una acción cerrará automáticamente este paso y abrirá el siguiente.
 
 <footer>
 
